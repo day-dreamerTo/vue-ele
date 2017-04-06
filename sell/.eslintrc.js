@@ -18,7 +18,7 @@ module.exports = {
     'generator-star-spacing': 0,
     // allow debugger during development 当前环境是开发环境就允许debugger
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
-    //允许分号
+    //必须加分号
     'semi':['error','always'],
     //忽略缩进
     'indent':0,

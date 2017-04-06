@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-header></v-header>
+    <v-header :seller="seller"></v-header>
     <div class="tab border-1px">
       <div class="tab-item">
         <a v-link="{path: '/goods'}">商品</a>
@@ -17,11 +17,21 @@
 </template>
 <script type="text/ecmascript-6">
   import Header from 'components/header/header.vue';
+  const ERR_OK = 0;
   export default{
-    data () {
+    data() {
       return {
-        msg: 'hello vue'
+        seller: {}
       };
+    },
+    created() {
+      // 异步获取数据 此时传递给子组件header的seller是空的
+      this.$http.get('/api/seller').then((response) => {
+        response = response.body;
+        if (response.errno === ERR_OK) {
+          this.seller = response.data;
+        }
+      });
     },
     components: {
       'v-header': Header
@@ -39,7 +49,7 @@
     .tab-item
       flex: 1
       text-align: center
-      & > a
+      a
         display: block
         font-size: 14px
         color: rgb(77, 85, 93)

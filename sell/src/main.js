@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import VueRsource from 'vue-resource';
 import App from './App';
 
 import goods from 'components/goods/goods';
@@ -9,6 +10,7 @@ import seller from 'components/seller/seller';
 import 'common/stylus/index.styl';
 
 Vue.use(VueRouter);
+Vue.use(VueRsource);
 /* eslint-disable no-new */ // 跳过校验
 let app = Vue.extend(App);
 var router = new VueRouter({
