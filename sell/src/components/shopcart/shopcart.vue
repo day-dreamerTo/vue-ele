@@ -142,7 +142,6 @@
     },
     methods: {
       drop(el) {
-        console.log(el);
         for (let i = 0; i < this.balls.length; i++) {
           let ball = this.balls[i];
           if (!ball.show) {
@@ -179,7 +178,6 @@
     transitions: {
       drop: {
         beforeEnter(el) {
-          console.log('beforeEnter');
           let count = this.balls.length;
           while (count--) {
             let ball = this.balls[count];
@@ -321,7 +319,7 @@
         bottom: 22px
         z-index: 200
         &.drop-transition
-          transition: all 0.4s cubic-bezier(.82, -0.49, 1, 0.33)
+          transition: all 0.4s
           .inner
             width: 16px
             height: 16px

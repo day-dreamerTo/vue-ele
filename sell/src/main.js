@@ -7,7 +7,7 @@ import goods from 'components/goods/goods';
 import ratings from 'components/ratings/ratings';
 import seller from 'components/seller/seller';
 
-import 'common/stylus/index.styl';
+import 'common/stylus/index.styl'; // 这样只能在html中直接使用
 
 Vue.use(VueRouter);
 Vue.use(VueRsource);
