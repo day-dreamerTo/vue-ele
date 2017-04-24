@@ -44,14 +44,14 @@
                 <span class="name">{{rating.username}}</span>
                 <img class="avatar" width="12" height="12" :src="rating.avatar">
               </div>
-              <div class="time">{{rating.rateTime}}</div>
+              <div class="time">{{rating.rateTime | formatDate}}</div>
               <p class="text">
                 <span :class="{'icon-thumb_up':rating.rateType===0,'icon-thumb_down':rating.rateType===1}"></span>
                 {{rating.text}}
               </p>
             </li>
           </ul>
-          <div class="no-rating" v-show="!food.ratings || !food.ratings.length"></div>
+          <div class="no-rating" v-show="!food.ratings || !food.ratings.length">暂无评价</div>
         </div>
       </div>
     </div>
@@ -63,6 +63,7 @@
   import cartcontrol from 'components/cartcontrol/cartcontrol';
   import split from 'components/split/split';
   import ratingselect from 'components/ratingselect/ratingselect';
+  import {formatDate} from 'common/js/date';
   const ALL = 2;
   export default{
     props: {
@@ -108,9 +109,11 @@
         Vue.set(this.food, 'count', 1);
       },
       needShow(type, text) {
+        // 只有内容 且 有文本
         if (this.onlyContent && !text) {
           return false;
         }
+        // 有文本 且 是所有
         if (this.selectType === ALL) {
           return true;
         } else {
@@ -127,14 +130,20 @@
       'ratingtype.select'(type) {
         this.selectType = type;
         this.$nextTick(() => {
-          this.fscroll.refresh();
+          this.scroll.refresh();
         });
       },
       'content.toggle'(onlyContent) {
         this.onlyContent = onlyContent;
         this.$nextTick(() => {
-          this.fscroll.refresh();
+          this.scroll.refresh();
         });
+      }
+    },
+    filters: {
+      formatDate(time) {
+        let date = new Date(time);
+        return formatDate(date, 'yyyy-MM-dd hh:mm');
       }
     }
   };
@@ -283,4 +292,8 @@
                 color: rgb(0, 160, 220)
               .icon-thumb_down
                 color: rgb(147, 153, 159)
+          .no-rating
+            padding: 16px 0
+            font-size: 12px
+            color: rgb(147, 153, 159)
 </style>
