@@ -79,7 +79,7 @@
       return {
        /* favorite: (() => {
           return loadFromLocal(this.seller.id, 'favorite', false);
-        })()*/
+        })() */
         favorite: loadFromLocal(this.seller.id, 'favorite', false)
       };
     },
