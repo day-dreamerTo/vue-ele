@@ -29,6 +29,10 @@
             </div>
           </li>
         </ul>
+        <div class="favorite" @click="toggleFavorite">
+          <span class="icon-favorite" :class="{'active' : favorite}"></span>
+          <span class="text">{{favoriteText}}</span>
+        </div>
       </div>
       <split></split>
       <div class="bulletin">
@@ -46,23 +50,39 @@
       <split></split>
       <div class="pics">
         <h1 class="title">商家实景</h1>
-        <div class="pic-wrapper">
-          <ul class="pic-list">
+        <div class="pic-wrapper" v-el:pic-wrapper>
+          <ul class="pic-list" v-el:pic-list>
             <li class="pic-item" v-for="pic in seller.pics">
               <img :src="pic" width="120" height="90">
             </li>
           </ul>
         </div>
       </div>
+      <split></split>
+      <div class="info">
+        <h1 class="title border-1px">商家信息</h1>
+        <ul>
+          <li class="info-item" v-for="info in seller.infos">{{info}}</li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import {saveToLocal, loadFromLocal} from 'common/js/store';
   import BScroll from 'better-scroll';
   import star from 'components/star/star';
   import split from 'components/split/split';
   export default{
+    data() {
+      return {
+       /* favorite: (() => {
+          return loadFromLocal(this.seller.id, 'favorite', false);
+        })()*/
+        favorite: loadFromLocal(this.seller.id, 'favorite', false)
+      };
+    },
     props: {
       seller: {
         type: Object,
@@ -75,15 +95,22 @@
       star,
       split
     },
+    computed: {
+      favoriteText() {
+        return this.favorite ? '已收藏' : '收藏';
+      }
+    },
     created() {
       this.classMap = ['decrease', 'discount', 'guarantee', 'invoice', 'special'];
     },
     ready() {
       this._initScroll();
+      this._initPics();
     },
     watch: {
-       seller() {
+      seller() {
         this._initScroll();
+        this._initPics();
       }
     },
     methods: {
@@ -95,6 +122,31 @@
         } else {
           // ready 先于 watch 执行
           this.scroll.refresh();
+        }
+      },
+      toggleFavorite(event) {
+        if (!event._constructed) {
+          return;
+        }
+        this.favorite = !this.favorite;
+        saveToLocal(this.seller.id, 'favorite', this.favorite);
+      },
+      _initPics() {
+        if (this.seller.pics) {
+          let picWidth = 120;
+          let margin = 6;
+          let width = (picWidth + margin) * this.seller.pics.length - margin;// 计算ul的宽
+          this.$els.picList.style.width = width + 'px';
+          this.$nextTick(() => {
+            if (this.picScroll) {
+              this.picScroll.refresh();
+            } else {
+              this.picScroll = new BScroll(this.$els.picWrapper, {
+                scrollX: true,
+                eventPassthrough: 'vertical'// 横向滚动时忽略竖向滚动
+              });
+            }
+          });
         }
       }
     }
@@ -152,6 +204,24 @@
             color: rgb(7, 17, 27)
             .stress
               font-size: 24px
+      .favorite
+        position: absolute
+        right: 11px
+        top: 18px
+        width: 50px
+        text-align: center
+        .icon-favorite
+          display: block
+          margin-bottom: 4px
+          line-height: 24px
+          color: #d4d6d9
+          font-size: 24px
+          &.active
+            color: rgb(240, 20, 20)
+        .text
+          line-height: 10px
+          font-size: 10px
+          color: rgb(77, 96, 93)
     .bulletin
       padding: 18px 18px 0 18px
       .title
@@ -216,4 +286,20 @@
             height: 90px
             &:last-child
               margin: 0
+    .info
+      padding: 18px 18px 0 18px
+      color: rgb(7, 17, 27)
+      .title
+        padding-bottom: 8px
+        border-1px(rgba(7, 17, 27, 0.1))
+        line-height: 14px
+        font-size: 14px
+      .info-item
+        padding: 16px 12px
+        border-1px(rgba(7, 17, 27, 0.1))
+        line-height: 16px
+        font-size: 12px
+        &:last-child
+          border-none()
+
 </style>
