@@ -1,9 +1,8 @@
 <template>
-  <div class="seller" v-el:seller>
+  <div class="seller" ref="seller">
     <div class="seller-content">
       <div class="overview">
         <h1 class="title">{{seller.name}}</h1>
-        <h2>{{test}}</h2>
         <div class="desc border-1px">
           <star :size="36" :score="seller.score"></star>
           <span class="text">({{seller.ratingCount}})</span>
@@ -41,18 +40,18 @@
           <p class="content">{{seller.bulletin}}</p>
         </div>
         <ul v-if="seller.supports" class="supports">
-          <li class="support-item border-1px" v-for="item in seller.supports">
-            <span class="icon" :class="classMap[seller.supports[$index].type]"></span>
-            <span class="text">{{seller.supports[$index].description}}</span>
+          <li class="support-item border-1px" v-for="(item,index) in seller.supports">
+            <span class="icon" :class="classMap[seller.supports[index].type]"></span>
+            <span class="text">{{seller.supports[index].description}}</span>
           </li>
         </ul>
       </div>
       <split></split>
       <div class="pics">
         <h1 class="title">商家实景</h1>
-        <div class="pic-wrapper" v-el:pic-wrapper>
-          <ul class="pic-list" v-el:pic-list>
-            <li class="pic-item" v-for="pic in seller.pics">
+        <div class="pic-wrapper" ref="pic-wrapper">
+          <ul class="pic-list" ref="pic-list">
+            <li class="pic-item" v-for="(pic,index) in seller.pics">
               <img :src="pic" width="120" height="90">
             </li>
           </ul>
@@ -62,7 +61,7 @@
       <div class="info">
         <h1 class="title border-1px">商家信息</h1>
         <ul>
-          <li class="info-item" v-for="info in seller.infos">{{info}}</li>
+          <li class="info-item" v-for="(info,index) in seller.infos">{{info}}</li>
         </ul>
       </div>
     </div>
@@ -116,7 +115,7 @@
     methods: {
       _initScroll() {
         if (!this.scroll) {
-          this.scroll = new BScroll(this.$els.seller, {
+          this.scroll = new BScroll(this.$refs.seller, {
             click: true
           });
         } else {
@@ -136,12 +135,12 @@
           let picWidth = 120;
           let margin = 6;
           let width = (picWidth + margin) * this.seller.pics.length - margin;// 计算ul的宽
-          this.$els.picList.style.width = width + 'px';
+          this.$refs.picList.style.width = width + 'px';
           this.$nextTick(() => {
             if (this.picScroll) {
               this.picScroll.refresh();
             } else {
-              this.picScroll = new BScroll(this.$els.picWrapper, {
+              this.picScroll = new BScroll(this.$refs.picWrapper, {
                 scrollX: true,
                 eventPassthrough: 'vertical'// 横向滚动时忽略竖向滚动
               });

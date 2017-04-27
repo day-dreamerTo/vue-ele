@@ -1,21 +1,21 @@
 <template>
   <div class="goods">
-    <div class="menu-wrapper" ref="menu-wrapper">
+    <div class="menu-wrapper" ref="menuWrapper">
       <ul>
-        <li v-for="item in goods" class="menu-item border-1px" :class="{'current':currentIndex === $index}"
-            @click="selectMenu($index,$event)">
+        <li v-for="(item,index) in goods" class="menu-item border-1px" :class="{'current':currentIndex === index}"
+            @click="selectMenu(index,$event)">
             <span class="text">
               <span v-show="item.type > 0" class="icon" :class="classMap[item.type]"></span>{{item.name}}
             </span>
         </li>
       </ul>
     </div>
-    <div class="foods-wrapper" ref="foods-wrapper">
+    <div class="foods-wrapper" ref="foodsWrapper">
       <ul>
-        <li v-for="item in goods" class="food-list food-list-hook">
+        <li v-for="(item,index) in goods" class="food-list food-list-hook">
           <h1 class="title">{{item.name}}</h1>
           <ul>
-            <li v-for="food in item.foods" class="food-item border-1px" @click="selectFood(food,$event)">
+            <li v-for="(food,index) in item.foods" class="food-item border-1px" @click="selectFood(food,$event)">
               <div class="icon">
                 <img :src="food.icon" width="57">
               </div>
@@ -30,7 +30,7 @@
                                                                 v-show="food.oldPrice">¥{{food.oldPrice}}</span>
                 </div>
                 <div class="cartcontrol-wrapper">
-                  <cartcontrol :food="food"></cartcontrol>
+                  <cartcontrol :food="food" @add="addFood"></cartcontrol>
                 </div>
               </div>
             </li>
@@ -40,7 +40,7 @@
     </div>
     <shopcart ref="shopcart" :select-foods="selectFoods" :delivery-price="seller.deliveryPrice"
               :min-price="seller.minPrice"></shopcart>
-    <food :food="selectedFood" v-ref:food></food>
+    <food @add="addFood" :food="selectedFood" ref="food"></food>
   </div>
 </template>
 <script type="text/ecmascript-6">
@@ -144,14 +144,11 @@
         let el = foodList[index];
         this.foodsScroll.scrollToElement(el, 300);
       },
+      addFood(target) {
+        this._drop(target);
+      },
       _drop(target) {
         this.$refs.shopcart.drop(target); // 调用子组件的方法 goods组件把dom元素传递给shopcart组件
-      }
-    },
-    // 接收子组件的事件
-    events: {
-      'cart.add'(target) {
-        this._drop(target);
       }
     }
   };

@@ -1,5 +1,5 @@
 <template>
-  <div class="ratings" v-el:ratings>
+  <div class="ratings" ref="ratings">
     <div class="ratings-content">
       <div class="overview">
         <div class="overview-left">
@@ -28,7 +28,7 @@
       <ratingselect :ratings="ratings"></ratingselect>
       <div class="rating-wrapper">
         <ul>
-          <li v-for="rating in ratings" class="rating-item border-1px" v-show="needShow(rating.rateType, rating.text)">
+          <li v-for="(rating,index) in ratings" class="rating-item border-1px" v-show="needShow(rating.rateType, rating.text)">
             <div class="avatar"><img :src="rating.avatar" width="28" height="28"></div>
             <div class="content">
               <h1 class="name">{{rating.username}}</h1>
@@ -39,7 +39,7 @@
               <p class="text">{{rating.text}}</p>
               <div class="recommend" v-show="rating.recommend && rating.recommend.length">
                 <span class="icon-thumb_up"></span>
-                <span v-for="item in rating.recommend" class="item">{{item}}</span>
+                <span v-for="(item,index) in rating.recommend" class="item">{{item}}</span>
               </div>
               <div class="time">{{rating.rateTime | formatDate}}</div>
             </div>
@@ -85,7 +85,7 @@
         if (response.errno === ERR_OK) {
           this.ratings = response.data;
           this.$nextTick(() => {
-            this.scroll = new BScroll(this.$els.ratings, {
+            this.scroll = new BScroll(this.$refs.ratings, {
               click: true
             });
           });

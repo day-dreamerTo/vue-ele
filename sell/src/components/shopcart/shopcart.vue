@@ -19,31 +19,39 @@
         </div>
       </div>
       <div class="ball-container">
-        <div transition="drop" v-for="ball in balls" v-show="ball.show" class="ball">
-          <div class="inner inner-hook"></div>
+        <div v-for="(ball,index) in balls">
+          <transition name="drop" @before-enter="beforeDrop" @enter="dropping" @after-enter="afterDrop">
+            <div class="ball" v-show="ball.show">
+              <div class="inner inner-hook"></div>
+            </div>
+          </transition>
         </div>
       </div>
-      <div class="shopcart-list" v-show="listShow" transition="fold">
-        <div class="list-header">
-          <h1 class="title">购物车</h1>
-          <span class="empty" @click="empty">清空</span>
+      <transition name="fold">
+        <div class="shopcart-list" v-show="listShow">
+          <div class="list-header">
+            <h1 class="title">购物车</h1>
+            <span class="empty" @click="empty">清空</span>
+          </div>
+          <div class="list-content" ref="listContent">
+            <ul>
+              <li class="food border-1px" v-for="(food,index) in selectFoods">
+                <span class="name">{{food.name}}</span>
+                <div class="price">
+                  <span>¥{{food.price * food.count}}</span>
+                </div>
+                <div class="cartcontrol-wrapper">
+                  <cartcontrol :food="food"></cartcontrol>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
-        <div class="list-content" v-el:list-content>
-          <ul>
-            <li class="food border-1px" v-for="food in selectFoods">
-              <span class="name">{{food.name}}</span>
-              <div class="price">
-                <span>¥{{food.price * food.count}}</span>
-              </div>
-              <div class="cartcontrol-wrapper">
-                <cartcontrol :food="food"></cartcontrol>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
+      </transition>
     </div>
-    <div class="list-mask" v-show="listShow" transition="fade" @click="hideList"></div>
+    <transition name="fade">
+      <div class="list-mask" v-show="listShow" @click="hideList"></div>
+    </transition>
   </div>
 </template>
 <script type="text/ecmascript-6">
@@ -131,7 +139,7 @@
         if (show) {
           this.$nextTick(() => {
             if (!this.scroll) {
-              this.scroll = new BScroll(this.$els.listContent, {
+              this.scroll = new BScroll(this.$refs.listContent, {
                 click: true
               });
             } else {
@@ -175,45 +183,42 @@
         } else {
           window.alert(`支付${this.totalPrice}元`);
         }
-      }
-    },
-    transitions: {
-      drop: {
-        beforeEnter(el) {
-          let count = this.balls.length;
-          while (count--) {
-            let ball = this.balls[count];
-            if (ball.show) {
-              let rect = ball.el.getBoundingClientRect(); // 获取相对视口的偏移
-              let x = rect.left - 32;
-              let y = -(window.innerHeight - rect.top - 22);
-              el.style.display = '';// 让小球显示
-              el.style.webkitTransform = `translate3d(0, ${y}px, 0)`;// 设置初始位置
-              el.style.transform = `translate3d(0, ${y}px, 0)`;// 设置初始位置
-              let inner = el.getElementsByClassName('inner-hook')[0];
-              inner.style.webkitTransform = `translate3d(${x}px, 0, 0)`;// 设置初始位置
-              inner.style.transform = `translate3d(${x}px, 0, 0)`;// 设置初始位置
-            }
-          }
-        },
-        enter(el) {
-          /* eslint-disable no-unused-vars */
-          let rf = el.offsetHeight;  // 设置重绘然后下面的代码才会执行 只声明没有使用所以要忽略语法检查
-          this.$nextTick(() => {
-            el.style.webkitTransform = 'translate3d(0,0,0)';
-            el.style.transform = 'translate3d(0,0,0)';
+      },
+      beforeDrop(el) {
+        let count = this.balls.length;
+        while (count--) {
+          let ball = this.balls[count];
+          if (ball.show) {
+            let rect = ball.el.getBoundingClientRect(); // 获取相对视口的偏移
+            let x = rect.left - 32;
+            let y = -(window.innerHeight - rect.top - 22);
+            el.style.display = '';// 让小球显示
+            el.style.webkitTransform = `translate3d(0, ${y}px, 0)`;// 设置初始位置
+            el.style.transform = `translate3d(0, ${y}px, 0)`;// 设置初始位置
             let inner = el.getElementsByClassName('inner-hook')[0];
-            inner.style.webkitTransform = 'translate3d(0,0,0)';
-            inner.styletransform = 'translate3d(0,0,0)';
-          });
-        },
-        afterEnter(el) {
-          let ball = this.dropBall.shift();
-          // 重新释放小球
-          if (ball) {
-            ball.show = false;
-            el.style.display = 'none';
+            inner.style.webkitTransform = `translate3d(${x}px, 0, 0)`;// 设置初始位置
+            inner.style.transform = `translate3d(${x}px, 0, 0)`;// 设置初始位置
           }
+        }
+      },
+      dropping(el, done) {
+        /* eslint-disable no-unused-vars */
+        let rf = el.offsetHeight;  // 设置重绘然后下面的代码才会执行 只声明没有使用所以要忽略语法检查
+        this.$nextTick(() => {
+          el.style.webkitTransform = 'translate3d(0,0,0)';
+          el.style.transform = 'translate3d(0,0,0)';
+          let inner = el.getElementsByClassName('inner-hook')[0];
+          inner.style.webkitTransform = 'translate3d(0,0,0)';
+          inner.styletransform = 'translate3d(0,0,0)';
+          el.addEventListener('transitionend', done);
+        });
+      },
+      afterDrop(el) {
+        let ball = this.dropBall.shift();
+        // 重新释放小球
+        if (ball) {
+          ball.show = false;
+          el.style.display = 'none';
         }
       }
     },
@@ -320,25 +325,23 @@
         left: 32px
         bottom: 22px
         z-index: 200
-        &.drop-transition
-          transition: all 0.4s
-          .inner
-            width: 16px
-            height: 16px
-            border-radius: 50%
-            background: rgb(0, 160, 220)
-            transition: all 0.4s linear
-
+        transition: all 0.4s cubic-bezier(0.49, -0.29, 0.75, 0.41)
+        .inner
+          width: 16px
+          height: 16px
+          border-radius: 50%
+          background: rgb(0, 160, 220)
+          transition: all 0.4s linear
     .shopcart-list
       position: absolute
       top: 0
       left: 0
       z-index: -1
       width: 100%
-      &.fold-transition
+      transform: translate3d(0, -100%, 0)
+      &.fold-enter-active,&.fold-leave-active
         transition: all 0.5s
-        transform: translate3d(0, -100%, 0)
-      &.fold-enter, &.fold-leave
+      &.fold-enter,&.fold-leave-active
         transform: translate3d(0, 0, 0)
       .list-header
         height: 40px
@@ -389,11 +392,11 @@
     height: 100%
     z-index: 40
     backdrop-filter: blur(10px)
-    &.fade-transition
+    opacity: 1
+    background: rgba(7, 17, 27, 0.6)
+    &.fade-enter-active, &.fade-leave-active
       transition: all 0.5s
-      opacity: 1
-      background: rgba(7, 17, 27, 0.6)
-    &.fade-enter, &.fade-leave
+    &.fade-enter, &.fade-leave-active // fade-leave 是透明度从1到0的第一帧,如果这里用move-leave的话在第一帧就把透明度置为0了也就没有效果了.fade-enter 是先把display改为空让其显示然后把透明度置为0
       opacity: 0
       background: rgba(7, 17, 27, 0)
 </style>
